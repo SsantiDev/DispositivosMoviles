@@ -45,7 +45,7 @@ export const useRewards = () => {
         setLoading(true);
         try {
             const data: Reward = await rewardService.fetchBalance();
-            setBalance(data.totalPoints);
+            setBalance(data.total_points); // Map snake_case to state
         } catch (err) {
             handleError(err);
         } finally {
@@ -63,7 +63,9 @@ export const useRewards = () => {
         try {
             const response = await rewardService.recordPurchase(amount);
             setFeedback({ message: response.message, type: 'success' });
-            await loadBalance(); // Automatic refresh
+            // In a real app we might use response.new_balance directly
+            // but reloading ensure history is up to date too
+            await loadBalance();
         } catch (err) {
             handleError(err);
         } finally {
@@ -81,7 +83,7 @@ export const useRewards = () => {
         try {
             const response = await rewardService.redeemPoints(points);
             setFeedback({ message: response.message, type: 'success' });
-            await loadBalance(); // Automatic refresh
+            await loadBalance();
         } catch (err) {
             handleError(err);
         } finally {

@@ -8,22 +8,20 @@ export type TransactionType = 'EARNED' | 'REDEEMED';
  */
 export interface RewardTransaction {
     id: number;
-    transactionType: TransactionType;
-    transactionTypeDisplay?: string;
+    transaction_type: TransactionType;
+    transaction_type_display?: string;
     points: number;
-    amountMoney: number;
-    timestamp: string; // ISO format
+    amount: number;
+    created_at: string;
 }
 
 /**
  * Represents the current state of a user's reward balance.
  */
 export interface Reward {
-    userId: number;
     username?: string;
-    totalPoints: number;
-    createdAt: string;
-    updatedAt: string;
+    total_points: number;
+    updated_at: string;
     transactions?: RewardTransaction[];
 }
 

@@ -125,21 +125,8 @@ class RewardTransaction(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Transaction Date"))
 
-    def save(self, *args, **kwargs):
-        """
-        Validation to ensure redemption doesn't exceed current balance.
-        Note: Reward.redeem_points already checks this, but this is a safety net.
-        Only applies on creation.
-        """
-        if not self.pk and self.transaction_type == self.Types.REDEEMED:
-            if self.points > self.reward.total_points:
-                raise ValidationError(
-                    _("Cannot redeem %(points)s points. Current balance is %(balance)s."),
-                    params={'points': self.points, 'balance': self.reward.total_points},
-                )
-        super().save(*args, **kwargs)
-
     def __str__(self):
+        return f"{self.transaction_type} - {self.points} pts for {self.reward.user.username}"
         return f"{self.transaction_type} - {self.points} pts for {self.reward.user.username}"
 
     class Meta:
