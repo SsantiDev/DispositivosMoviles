@@ -58,21 +58,19 @@ class RedeemPointsView(APIView):
 
     def post(self, request):
         serializer = RedeemPointsSerializer(data=request.data)
-        if serializer.is_valid():
-            reward, created = Reward.objects.get_or_create(user=request.user)
-            points_to_redeem = serializer.validated_data['points']
-            
-            try:
-                reward.redeem_points(points_to_redeem)
-                return Response({
-                    "message": _("Points redeemed successfully."),
-                    "new_balance": reward.total_points,
-                    "points_redeemed": points_to_redeem
-                }, status=status.HTTP_200_OK)
-            except InsufficientPointsError as e:
-                return Response({
-                    "error": str(e),
-                    "current_balance": reward.total_points
-                }, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
         
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        reward, created = Reward.objects.get_or_create(user=request.user)
+        points_to_redeem = serializer.validated_data['points']
+        
+        try:
+            reward.redeem_points(points_to_redeem)
+            return Response({
+                "message": _("Points redeemed successfully."),
+                "new_balance": reward.total_points,
+                "points_redeemed": points_to_redeem
+            }, status=status.HTTP_200_OK)
+        except InsufficientPointsError as e:
+            # We raise a ValidationError so the custom handler catches it and formats it correctly
+            from rest_framework.exceptions import ValidationError as DRFValidationError
+            raise DRFValidationError(detail=str(e), code="insufficient_points")
